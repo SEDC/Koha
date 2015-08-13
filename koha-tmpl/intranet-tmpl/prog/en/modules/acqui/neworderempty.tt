@@ -165,7 +165,7 @@ $(document).ready(function()
         window.open(
             "/cgi-bin/koha/acqui/add_user_search.pl",
             'UserSearchPopup',
-            'width=740,height=450,toolbar=no,'
+            'width=740, height=450, scrollbars=yes, toolbar=no,'
          );
     }
 
@@ -513,7 +513,7 @@ $(document).ready(function()
                 [% END %]
                 </select>
                 <span class="required">Required</span>
-                <label for="showallbudgets" style="float:none;width:auto;">&nbsp;Show all:</label>
+                <label for="showallbudgets" style="float:none;">&nbsp;Show inactive:</label>
                 <input type="checkbox" id="showallbudgets" />
                 [% END %]
             </li>

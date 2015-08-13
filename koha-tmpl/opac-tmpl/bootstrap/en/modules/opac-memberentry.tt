@@ -3,7 +3,7 @@
 [% SET userupdateview = 1 %]
 
 [% INCLUDE 'doc-head-open.inc' %]
-    [% IF ( LibraryNameTitle ) %][% LibraryNameTitle %][% ELSE %]Koha online[% END %] catalog &rsaquo; [% IF action == 'edit' %]Update your personal details[% ELSE %]Register a new account[% END %]
+    <title>[% IF ( LibraryNameTitle ) %][% LibraryNameTitle %][% ELSE %]Koha online[% END %] catalog &rsaquo; [% IF action == 'edit' %]Update your personal details[% ELSE %]Register a new account[% END %]</title>
 [% INCLUDE 'doc-head-close.inc' %]
 [% BLOCK cssinclude %][% END %]
 </head>
@@ -61,10 +61,19 @@
 
                         <legend id="library_legend">Library</legend>
                             <ol>
+                                [% UNLESS hidden.defined('cardnumber') %]
                                 <li>
-                                    <label>Card number</label>
-                                    <input type="text" value="[% borrower.cardnumber %]" disabled="disabled"/>
+                                    <label>Card number:</label>
+                                    [% borrower.cardnumber %]
                                 </li>
+                                [% END %]
+
+                                [% UNLESS hidden.defined('dateexpiry') %]
+                                <li>
+                                    <label>Expiration date:</label>
+                                    [% borrower.dateexpiry | $KohaDates  %]
+                                </li>
+                                [% END %]
 
                                 [% UNLESS hidden.defined('branchcode') %]
                                     <li>

@@ -414,7 +414,7 @@ if ($indexes[0] && (!$indexes[1] || $params->{'scan'})) {
 }
 
 # an operand can be a single term, a phrase, or a complete ccl query
-my @operands = map Encode::decode_utf8( uri_unescape($_) ), $cgi->param('q');
+my @operands = map uri_unescape($_), $cgi->param('q');
 
 # limits are use to limit to results to a pre-defined category such as branch or language
 my @limits = map uri_unescape($_), $cgi->param('limit');
@@ -536,7 +536,7 @@ eval {
 # This sorts the facets into alphabetical order
 if ($facets) {
     foreach my $f (@$facets) {
-        $f->{facets} = [ sort { uc($a->{facet_title_value}) cmp uc($b->{facet_title_value}) } @{ $f->{facets} } ];
+        $f->{facets} = [ sort { uc($a->{facet_label_value}) cmp uc($b->{facet_label_value}) } @{ $f->{facets} } ];
     }
 }
 if ($@ || $error) {

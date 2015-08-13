@@ -5007,7 +5007,7 @@ if ( C4::Context->preference("Version") < TransformToNum($DBversion) ) {
     $dbh->do("ALTER TABLE default_branch_item_rules ADD
             COLUMN `returnbranch` varchar(15) default NULL AFTER `holdallowed`");
     # set the default rule to the current value of HomeOrHoldingBranchReturn (default to 'homebranch' if need be)
-    my $homeorholdingbranchreturn = C4::Context->prefernce('HomeOrHoldingBranchReturn') || 'homebranch';
+    my $homeorholdingbranchreturn = C4::Context->preference('HomeOrHoldingBranchReturn') || 'homebranch';
     $dbh->do("UPDATE default_circ_rules SET returnbranch = '$homeorholdingbranchreturn'");
     print "Upgrade to $DBversion done (Atomic update for OAI-PMH sets management)\n";
     SetVersion($DBversion);
@@ -10515,6 +10515,57 @@ if ( CheckVersion($DBversion) ) {
     SetVersion ($DBversion);
 }
 
+
+$DBversion = "3.20.01.001";
+if ( CheckVersion($DBversion) ) {
+    my $msg;
+    if ( C4::Context->preference('OPACPrivacy') ) {
+        if ( my $anonymous_patron = C4::Context->preference('AnonymousPatron') ) {
+            my $anonymous_patron_exists = $dbh->selectcol_arrayref(q|
+                SELECT COUNT(*)
+                FROM borrowers
+                WHERE borrowernumber=?
+            |, {}, $anonymous_patron);
+            unless ( $anonymous_patron_exists->[0] ) {
+                $msg = "Configuration WARNING: OPACPrivacy is set but AnonymousPatron is not linked to an existing patron";
+            }
+        }
+        else {
+            $msg = "Configuration WARNING: OPACPrivacy is set but AnonymousPatron is not";
+        }
+    }
+    else {
+        my $patrons_have_required_anonymity = $dbh->selectcol_arrayref(q|
+            SELECT COUNT(*)
+            FROM borrowers
+            WHERE privacy = 2
+        |, {} );
+        if ( $patrons_have_required_anonymity->[0] ) {
+            $msg = "Configuration WARNING: OPACPrivacy is not set but $patrons_have_required_anonymity->[0] patrons have required anonymity (perhaps in a previous configuration). You should fix that asap.";
+        }
+    }
+
+    $msg //= "Privacy is correctly set";
+    print "Upgrade to $DBversion done (Bug 9942: $msg)\n";
+    SetVersion ($DBversion);
+}
+
+$DBversion = "3.20.01.002";
+if ( CheckVersion($DBversion) ) {
+    $dbh->do(q|
+        UPDATE aqorders SET orderstatus='cancelled'
+        WHERE (datecancellationprinted IS NOT NULL OR
+               datecancellationprinted<>'0000-00-00');
+    |);
+    print "Upgrade to $DBversion done (Bug 13993: Correct orderstatus for transferred orders)\n";
+    SetVersion($DBversion);
+}
+
+$DBversion = "3.20.02.000";
+if ( CheckVersion($DBversion) ) {
+    print "Upgrade to $DBversion done (Koha 3.20.2)\n";
+    SetVersion($DBversion);
+}
 
 
 # DEVELOPER PROCESS, search for anything to execute in the db_update directory
