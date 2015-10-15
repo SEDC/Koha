@@ -60,13 +60,27 @@ sub find_value {
 }
 
 sub get_item_from_barcode {
-    my ($barcode)=@_;
+    my ($barcode, $homebranch)=@_;
     my $dbh=C4::Context->dbh;
     my $result;
-    my $rq=$dbh->prepare("SELECT itemnumber from items where items.barcode=?");
-    $rq->execute($barcode);
-    ($result)=$rq->fetchrow;
-    return($result);
+    if($homebranch)
+    {
+        my $query = "SELECT itemnumber from items where items.barcode=? and homebranch = ?";
+        my $rq=$dbh->prepare($query);
+        $rq->execute($barcode,$homebranch);
+        ($result)=$rq->fetchrow;
+        return($result);
+    }
+    else
+    {
+        my $userenv = C4::Context->userenv();
+        my $query = "SELECT itemnumber from items where items.barcode=? and homebranch = ?";
+        my $rq=$dbh->prepare($query);
+        $rq->execute($barcode,$userenv->{branch});
+        ($result)=$rq->fetchrow;
+        return($result);
+    }
+
 }
 
 sub set_item_default_location {
@@ -371,7 +385,6 @@ my $fa_barcode            = $input->param('barcode');
 my $fa_branch             = $input->param('branch');
 my $fa_stickyduedate      = $input->param('stickyduedate');
 my $fa_duedatespec        = $input->param('duedatespec');
-
 my $frameworkcode = &GetFrameworkCode($biblionumber);
 
 # Defining which userflag is needing according to the framework currently used
@@ -464,7 +477,7 @@ if ($op eq "additem") {
     if ( $add_submit || $add_duplicate_submit ) {
 
         # check for item barcode # being unique
-        my $exist_itemnumber = get_item_from_barcode( $addedolditem->{'barcode'} );
+        my $exist_itemnumber = get_item_from_barcode( $addedolditem->{'barcode'}, $fa_branch );
         push @errors, "barcode_not_unique" if ($exist_itemnumber);
 
         # if barcode exists, don't create, but report The problem.
@@ -547,7 +560,7 @@ if ($op eq "additem") {
 		    }
 
 		    # Checking if the barcode already exists
-		    $exist_itemnumber = get_item_from_barcode($barcodevalue);
+		    $exist_itemnumber = get_item_from_barcode($barcodevalue, $fa_branch);
 		}
 
 		# Adding the item
@@ -651,7 +664,7 @@ if ($op eq "additem") {
     # warn "R: ".$record->as_formatted;
     # check that the barcode don't exist already
     my $addedolditem = TransformMarcToKoha($dbh,$itemtosave);
-    my $exist_itemnumber = get_item_from_barcode($addedolditem->{'barcode'});
+    my $exist_itemnumber = get_item_from_barcode($addedolditem->{'barcode'}, $fa_branch);
     if ($exist_itemnumber && $exist_itemnumber != $itemnumber) {
         push @errors,"barcode_not_unique";
     } else {
