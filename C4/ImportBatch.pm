@@ -799,6 +799,9 @@ sub BatchCommitItems {
 
     my $dbh = C4::Context->dbh;
 
+    my $userenv = C4::Context->userenv();
+
+
     my $num_items_added = 0;
     my $num_items_errored = 0;
     my $num_items_replaced = 0;
@@ -823,6 +826,20 @@ sub BatchCommitItems {
         my $item = TransformMarcToKoha( $dbh, $item_marc );
 
         my $duplicate_barcode = exists( $item->{'barcode'} ) && GetItemnumberFromBarcode( $item->{'barcode'} );
+
+        #Check if the barcode doesnt exist in homebranch
+        if($duplicate_barcode)
+        {
+            my $query = "SELECT itemnumber from items where items.barcode=? and homebranch = ?";
+            my $rq = $dbh->prepare($query);
+            $rq->execute($item->{'barcode'}, $userenv->{branch});
+            my $barcode_result = $rq->fetchrow;
+            if ($barcode_result <= 0)
+            {
+                $duplicate_barcode = 0;
+            }
+        }
+
         my $duplicate_itemnumber = exists( $item->{'itemnumber'} );
 
         my $updsth = $dbh->prepare("UPDATE import_items SET status = ?, itemnumber = ? WHERE import_items_id = ?");
