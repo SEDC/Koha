@@ -12,6 +12,14 @@ while (@row = $sth->fetchrow_array) {
    print $row[0,];
 }
 
+#print Dumper(\$sth)
+#    open (FILEHANDLE, ">hash.dat") or die ("cannot open hash.dat");
+#$, = "\n";
+#print hash.dat @$sth;
+#close hash.dat;
+
+
+
 =head
 use C4::Context;
 my $dbh   = C4::Context->dbh;
@@ -25,3 +33,4 @@ $sth->finish();
 # Disconnect from the database.
 $dbh->disconnect();
 =cut
+
