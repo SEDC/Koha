@@ -3,10 +3,11 @@ This perl module is for connecting to aspire databases.
 
 =cut
 
-use strict;
+package Modules::Aspire;
 use Modern::Perl;
 use DBI;
-package Sync::Aspire;
+use Data::Dumper;
+
 #apt-get libperl-dbd-odbc
 sub getDBH()
 {
@@ -23,9 +24,18 @@ sub getDBH()
 }
 
 #getStudents
+sub getStudents()
+{
+    my $sth = getDBH->prepare("select ident, lastname, firstname, schoolc from stugrp_active");
+    $sth->execute;
+    my $students = $sth->fetchall_arrayref;
 
+    print Dumper($students);
 
-#getTeachers
-#
-
-1;
+    #my @row;
+    #while (@row = $sth->fetchrow_array) {
+    #   $row[0] =~ s/^\s+|\s+$//g;
+    #   #Remove newline when in production - Josh
+    #   print $row[0]. " " .$row[1] . "\n";
+    #}
+}
