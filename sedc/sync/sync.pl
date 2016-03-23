@@ -1,5 +1,7 @@
 #!/usr/bin/perl
-use lib "/home/koha/eric/sedc/bin/sync";
+use lib "/home/koha/eric/sedc/sync";
+use strict;
+use warnings;
 
 use Modern::Perl;
 use Data::Dumper;
