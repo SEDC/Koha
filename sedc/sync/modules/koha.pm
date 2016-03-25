@@ -21,17 +21,9 @@ sub getBorrowers()
         $sth->execute();
         my $borrowers = $sth->fetchall_hashref('borrowernumber');
 
-        print Dumper($borrowers);
+        #print Dumper($borrowers);
+        return $borrowers;
 
-        #check to see if id exists probably use in sync.pl
-        if(exists $borrowers->{'48'})
-        {
-            print "HI" . "\n";
-        }
-
-        #while (my $ref = $sth->fetchrow_hashref()) {
-        #    print "Found a row: id = $ref->{'borrowernumber'}, name = $ref->{'firstname'}\n";
-        #}
         $sth->finish();
 
         # Disconnect from the database.
