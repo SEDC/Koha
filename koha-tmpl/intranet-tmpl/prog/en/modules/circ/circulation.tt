@@ -302,6 +302,11 @@ $(document).ready(function() {
     [% END %]
   </li>
 [% END %]
+[% IF PATRON_PREVIOUSLY_ISSUED %]
+<li>
+    Patron has checked out this title in the past.  Check out anyway?
+</li>
+[% END %]
 </ul>
 
 [% IF HIGHHOLDS %]
