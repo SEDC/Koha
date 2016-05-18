@@ -46,6 +46,7 @@ use C4::Members::Attributes qw(GetBorrowerAttributes);
 use Koha::Borrower::Debarments qw(GetDebarments IsDebarred);
 use Koha::DateUtils;
 use Koha::Database;
+use C4::Items;
 
 use Date::Calc qw(
   Today
@@ -301,6 +302,18 @@ if ($barcode) {
     # always check for blockers on issuing
     my ( $error, $question, $alerts ) =
     CanBookBeIssued( $borrower, $barcode, $datedue , $inprocess );
+    if($session->param("levelledLibraryMode"))
+    {
+        my $dbh = C4::Context->dbh;
+        my $item = GetItem(undef, $barcode);
+        my $sth = $dbh->prepare("SELECT old_issues.itemnumber FROM old_issues CROSS JOIN items USING (itemnumber) WHERE biblionumber = ? AND borrowernumber = ?");
+        $sth->execute($item->{'biblionumber'},$borrower->{'borrowernumber'});
+        my $alreadyissued = $sth->fetchrow_hashref();
+        $sth->finish();
+        if ( $alreadyissued->{'itemnumber'} ) {
+            $question->{PATRON_PREVIOUSLY_ISSUED} = 1;
+        }
+    }
     my $blocker = $invalidduedate ? 1 : 0;
 
     $template->param( alert => $alerts );
@@ -589,5 +602,9 @@ $template->param(
     debarments                => GetDebarments({ borrowernumber => $borrowernumber }),
     todaysdate                => output_pref( { dt => dt_from_string()->set(hour => 23)->set(minute => 59), dateformat => 'sql' } ),
 );
+
+#Level Library Mode
+my $session = C4::Auth::get_session($query->cookie("CGISESSID"));
+$template->param(levelledLibraryMode => $session->param("levelledLibraryMode"));
 
 output_html_with_http_headers $query, $cookie, $template->output;

@@ -83,4 +83,15 @@ unless ($loggedinuser) {
     $template->param(adminWarning => 1);
 }
 
+#Level Library Mode
+my $session = C4::Auth::get_session($query->cookie("CGISESSID"));
+if( $session->param("levelledLibraryMode") )
+{
+    $template->param(levelledLibraryMode => $session->param("levelledLibraryMode"));
+}
+else
+{
+    $template->param(levelledLibraryMode => "0");
+}
+
 output_html_with_http_headers $query, $cookie, $template->output;
