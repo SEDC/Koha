@@ -590,4 +590,8 @@ $template->param(
     todaysdate                => output_pref( { dt => dt_from_string()->set(hour => 23)->set(minute => 59), dateformat => 'sql' } ),
 );
 
+#Level Library Mode
+my $session = C4::Auth::get_session($query->cookie("CGISESSID"));
+$template->param(levelledLibraryMode => $session->param("levelledLibraryMode"));
+
 output_html_with_http_headers $query, $cookie, $template->output;

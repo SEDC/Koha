@@ -40,6 +40,15 @@
             </li>
         </ul>
         <ul class="nav pull-right">
+            [% IF (levelledLibraryMode == 1) || (levelledLibraryMode == 0) %]
+            <li>
+                [% IF (levelledLibraryMode ) %]
+                <a href="/cgi-bin/koha/admin/setLevelledLibrary.pl" class="btn-small btn-danger" style="color: white; font-weight: normal">Level Library Mode On</a>
+                [% ELSE %]
+                <a href="/cgi-bin/koha/admin/setLevelledLibrary.pl" class="btn-small btn-success" style="color: white;font-weight: normal">Level Library Mode Off</a>
+                [% END %]
+            </li>
+            [% END %]
             <li class="dropdown">
                 <a href="#" id="drop3" role="button" class="dropdown-toggle" data-toggle="dropdown">
                     [% IF ( loggedinusername ) %]
